@@ -43,8 +43,8 @@ func reset_game() -> void:
 	elapsed_seconds = 0
 	update_timer_label()
 	game_timer.start()
-
-	status_label.text = "Your turn: click a column"
+	current_player = HUMAN
+	status_label.text = "Player 1 turn: click a column"
 	board_view.call("set_board", board)
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
@@ -56,10 +56,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var col: int = board_view.call("mouse_to_column", event.position)
 		if col == -1:
 			return
-		try_human_move(col)
+		try_move(col)
 
-func try_human_move(col: int) -> void:
-	if current_player != HUMAN or game_over:
+func try_move(col: int) -> void:
+	if game_over:
 		return
 
 	var drop_row := get_drop_row(col)
@@ -67,20 +67,21 @@ func try_human_move(col: int) -> void:
 		status_label.text = "Column is full. Choose another."
 		return
 
-	apply_move(drop_row, col, HUMAN)
+	apply_move(drop_row, col, current_player)
 
 	# End conditions
-	if check_win(drop_row, col, HUMAN):
-		end_game("You win! 🎉")
+	if check_win(drop_row, col, current_player):
+		var winner_text := "Player 1 wins! 🎉" if current_player == P1 else "Player 2 wins! 🎉"
+		end_game(winner_text)
 		return
 
 	if check_draw():
 		end_game("Draw.")
 		return
 
-	# For now, still human's turn (since AI not added yet)
-	current_player = HUMAN
-	status_label.text = "Your turn: click a column"
+	# Switch turns
+	current_player = P2 if current_player == P1 else P1
+	status_label.text = "Player 1's turn" if current_player == P1 else "Player 2's turn"
 
 func end_game(result_text: String) -> void:
 	game_over = true

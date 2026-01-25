@@ -8,7 +8,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Button" type="Button" parent="."]
+[node name="Play" type="Button" parent="."]
 layout_mode = 0
 offset_left = 268.0
 offset_top = 131.0

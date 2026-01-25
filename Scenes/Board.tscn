@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bdjo65rlvivej"]
+
+[node name="Main" type="Node2D"]
+
+[node name="BoardView" type="Node2D" parent="."]
+
+[node name="StatusLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ResetButton" type="Button" parent="."]
+offset_right = 8.0
+offset_bottom = 8.0

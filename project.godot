@@ -16,8 +16,8 @@ config/icon="res://Art/icon.svg"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=2000
+window/size/viewport_height=1125
 window/size/resizable=false
 window/stretch/scale=2.0
 window/stretch/scale_mode="integer"

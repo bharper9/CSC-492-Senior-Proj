@@ -1,0 +1,131 @@
+extends Node2D
+
+const ROWS := 6
+const COLS := 7
+const EMPTY := 0
+const HUMAN := 1
+const AI := 2
+
+@onready var board_view: Node2D = $BoardView
+@onready var status_label: Label = $StatusLabel
+@onready var reset_button: Button = $ResetButton
+
+var board: Array = []               # board[row][col]
+var current_player: int = HUMAN
+var game_over: bool = false
+
+# Difficulty: just for UI messaging now; later your AI will use this.
+var last_move_row: int = -1
+var last_move_col: int = -1
+
+func _ready() -> void:
+	reset_game()
+
+func reset_game() -> void:
+	board = []
+	for r in ROWS:
+		var row := []
+		for c in COLS:
+			row.append(EMPTY)
+		board.append(row)
+
+	current_player = HUMAN
+	game_over = false
+	last_move_row = -1
+	last_move_col = -1
+
+	status_label.text = "Your turn: click a column"
+	board_view.call("set_board", board)
+	board_view.call("set_last_move", last_move_row, last_move_col)
+	board_view.queue_redraw()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if game_over:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Convert click x-position into a column based on BoardView geometry
+		var col: int = board_view.call("mouse_to_column", event.position)
+		if col == -1:
+			return
+		try_human_move(col)
+
+
+func try_human_move(col: int) -> void:
+	if current_player != HUMAN or game_over:
+		return
+
+	var drop_row := get_drop_row(col)
+	if drop_row == -1:
+		status_label.text = "Column is full. Choose another."
+		return
+
+	apply_move(drop_row, col, HUMAN)
+
+	# Check end conditions
+	if check_win(drop_row, col, HUMAN):
+		game_over = true
+		status_label.text = "You win! 🎉"
+		return
+
+	if check_draw():
+		game_over = true
+		status_label.text = "Draw."
+		return
+
+	# If you later add AI, switch to AI here.
+	current_player = HUMAN
+	status_label.text = "Your turn: click a column"
+
+func get_drop_row(col: int) -> int:
+	if col < 0 or col >= COLS:
+		return -1
+	# row 0 is bottom; find lowest EMPTY
+	for r in ROWS:
+		if board[r][col] == EMPTY:
+			return r
+	return -1
+
+func apply_move(row: int, col: int, player: int) -> void:
+	board[row][col] = player
+	last_move_row = row
+	last_move_col = col
+
+	board_view.call("set_board", board)
+	board_view.call("set_last_move", last_move_row, last_move_col)
+	board_view.queue_redraw()
+
+func check_draw() -> bool:
+	# If no column has space, it's a draw (assuming no win already)
+	for c in COLS:
+		if board[ROWS - 1][c] == EMPTY:
+			return false
+	return true
+
+func check_win(row: int, col: int, player: int) -> bool:
+	# Check 4 directions: horiz, vert, diag1, diag2
+	return (
+		count_line(row, col, 0, 1, player) >= 4 or
+		count_line(row, col, 1, 0, player) >= 4 or
+		count_line(row, col, 1, 1, player) >= 4 or
+		count_line(row, col, 1, -1, player) >= 4
+	)
+
+func count_line(row: int, col: int, dr: int, dc: int, player: int) -> int:
+	# Count contiguous pieces in both directions including the origin
+	var total := 1
+	total += count_dir(row, col, dr, dc, player)
+	total += count_dir(row, col, -dr, -dc, player)
+	return total
+
+func count_dir(row: int, col: int, dr: int, dc: int, player: int) -> int:
+	var r := row + dr
+	var c := col + dc
+	var count := 0
+	while r >= 0 and r < ROWS and c >= 0 and c < COLS and board[r][c] == player:
+		count += 1
+		r += dr
+		c += dc
+	return count
+
+func _on_reset_button_pressed() -> void:
+	reset_game()

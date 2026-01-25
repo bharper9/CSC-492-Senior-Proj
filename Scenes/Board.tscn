@@ -1,13 +1,23 @@
-[gd_scene format=3 uid="uid://bdjo65rlvivej"]
+[gd_scene load_steps=3 format=3 uid="uid://bdjo65rlvivej"]
+
+[ext_resource type="Script" uid="uid://dwhp7ptv0ecic" path="res://Scenes/board.gd" id="1_igt3p"]
+[ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_37q8m"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_igt3p")
 
 [node name="BoardView" type="Node2D" parent="."]
+script = ExtResource("2_37q8m")
 
 [node name="StatusLabel" type="Label" parent="."]
 offset_right = 40.0
 offset_bottom = 23.0
 
 [node name="ResetButton" type="Button" parent="."]
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = 4.0
+offset_top = 64.0
+offset_right = 55.0
+offset_bottom = 95.0
+text = "Reset"
+
+[connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]

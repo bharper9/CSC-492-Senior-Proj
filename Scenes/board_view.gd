@@ -20,7 +20,7 @@ func set_last_move(r: int, c: int) -> void:
 	last_move_row = r
 	last_move_col = c
 
-# ✅ Strongly typed: returns -1 for invalid click
+
 func mouse_to_column(mouse_pos: Vector2) -> int:
 	var local := to_local(mouse_pos)
 	var board_origin := Vector2(padding, padding)

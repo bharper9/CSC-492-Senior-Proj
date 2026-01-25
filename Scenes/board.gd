@@ -71,7 +71,7 @@ func try_move(col: int) -> void:
 
 	# End conditions
 	if check_win(drop_row, col, current_player):
-		var winner_text := "Player 1 wins! 🎉" if current_player == P1 else "Player 2 wins! 🎉"
+		var winner_text := "Player 1 wins! 🎉" if current_player == HUMAN else "Player 2 wins! 🎉"
 		end_game(winner_text)
 		return
 
@@ -80,8 +80,8 @@ func try_move(col: int) -> void:
 		return
 
 	# Switch turns
-	current_player = P2 if current_player == P1 else P1
-	status_label.text = "Player 1's turn" if current_player == P1 else "Player 2's turn"
+	current_player = AI if current_player == HUMAN else HUMAN
+	status_label.text = "Player 1's turn" if current_player == HUMAN else "Player 2's turn"
 
 func end_game(result_text: String) -> void:
 	game_over = true

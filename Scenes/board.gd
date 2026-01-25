@@ -9,6 +9,11 @@ const AI := 2
 @onready var board_view: Node2D = $BoardView
 @onready var status_label: Label = $StatusLabel
 @onready var reset_button: Button = $ResetButton
+@onready var timer_label: Label = $TimerLabel
+@onready var game_timer: Timer = $GameTimer
+
+var elapsed_seconds: int = 0
+
 
 var board: Array = []               # board[row][col]
 var current_player: int = HUMAN
@@ -38,6 +43,10 @@ func reset_game() -> void:
 	board_view.call("set_board", board)
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
+	elapsed_seconds = 0
+	update_timer_label()
+	game_timer.start()
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over:
@@ -64,11 +73,16 @@ func try_human_move(col: int) -> void:
 	# Check end conditions
 	if check_win(drop_row, col, HUMAN):
 		game_over = true
-		status_label.text = "You win! 🎉"
+		game_timer.stop()
+		print("Game duration (seconds): ", elapsed_seconds)
+		status_label.text = "You win!"
 		return
+
 
 	if check_draw():
 		game_over = true
+		game_timer.stop()
+		print("Game duration (seconds): ", elapsed_seconds)
 		status_label.text = "Draw."
 		return
 
@@ -129,3 +143,13 @@ func count_dir(row: int, col: int, dr: int, dc: int, player: int) -> int:
 
 func _on_reset_button_pressed() -> void:
 	reset_game()
+
+
+func _on_game_timer_timeout() -> void:
+	elapsed_seconds += 1
+	update_timer_label()
+
+func update_timer_label() -> void:
+	var minutes := elapsed_seconds / 60
+	var seconds := elapsed_seconds % 60
+	timer_label.text = "Time: %02d:%02d" % [minutes, seconds]

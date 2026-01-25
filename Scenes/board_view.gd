@@ -6,7 +6,6 @@ const EMPTY := 0
 const HUMAN := 1
 const AI := 2
 
-# Board rendering settings
 @export var cell_size: float = 80.0
 @export var padding: float = 20.0
 
@@ -21,6 +20,7 @@ func set_last_move(r: int, c: int) -> void:
 	last_move_row = r
 	last_move_col = c
 
+# ✅ Strongly typed: returns -1 for invalid click
 func mouse_to_column(mouse_pos: Vector2) -> int:
 	var local := to_local(mouse_pos)
 	var board_origin := Vector2(padding, padding)
@@ -41,31 +41,30 @@ func _draw() -> void:
 	var w := COLS * cell_size
 	var h := ROWS * cell_size
 
-	# Background board
+	# Board background
 	draw_rect(Rect2(origin, Vector2(w, h)), Color(0.15, 0.15, 0.18), true)
 
-	# Grid + pieces
 	for r in ROWS:
 		for c in COLS:
+			# Flip y so row 0 is bottom visually
 			var cell_top_left := origin + Vector2(c * cell_size, (ROWS - 1 - r) * cell_size)
 			draw_rect(Rect2(cell_top_left, Vector2(cell_size, cell_size)), Color(0.25, 0.25, 0.30), false, 2.0)
 
 			var center := cell_top_left + Vector2(cell_size / 2.0, cell_size / 2.0)
 			var radius := cell_size * 0.38
 
-			# Piece color
 			var v := EMPTY
 			if board.size() == ROWS and board[r].size() == COLS:
 				v = board[r][c]
 
-			var col := Color(0.08, 0.08, 0.10) # empty slot
+			var piece_color := Color(0.08, 0.08, 0.10) # empty slot
 			if v == HUMAN:
-				col = Color(0.90, 0.25, 0.25)
+				piece_color = Color(0.90, 0.25, 0.25)
 			elif v == AI:
-				col = Color(0.90, 0.85, 0.25)
+				piece_color = Color(0.90, 0.85, 0.25)
 
-			draw_circle(center, radius, col)
+			draw_circle(center, radius, piece_color)
 
-			# Optional: highlight last move with a thin ring
+			# Highlight last move
 			if r == last_move_row and c == last_move_col and last_move_row != -1:
 				draw_arc(center, radius + 3.0, 0.0, TAU, 48, Color(1, 1, 1), 2.0)

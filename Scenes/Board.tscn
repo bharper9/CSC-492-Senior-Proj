@@ -29,7 +29,7 @@ offset_right = 672.0
 offset_bottom = 102.0
 text = "Time: 00:00"
 
-[node name="GameTimer" type="Timer" parent="TimerLabel"]
+[node name="GameTimer" type="Timer" parent="."]
 
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
-[connection signal="timeout" from="TimerLabel/GameTimer" to="." method="_on_game_timer_timeout"]
+[connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]

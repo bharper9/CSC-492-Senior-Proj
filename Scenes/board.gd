@@ -22,6 +22,172 @@ var last_move_col: int = -1
 
 var elapsed_seconds: int = 0
 
+# --- AI Helper Functions ---
+const AI_DEPTH := 4 # Diffuclty spike 1 = easy 4+ AI is smart
+const NEG_INF := -99999999
+const POS_INF :=  99999999
+
+func copy_board(b: Array) -> Array:
+	return b.duplicate(true)
+
+func get_valid_columns(b: Array) -> Array[int]:
+	var cols: Array[int] = []
+	for c in COLS:
+		if b[ROWS - 1][c] == EMPTY:
+			cols.append(c)
+	return cols
+
+func get_next_open_row(b: Array, col: int) -> int:
+	for r in ROWS:
+		if b[r][col] == EMPTY:
+			return r
+	return -1
+
+func drop_piece(b: Array, row: int, col: int, player: int) -> void:
+	b[row][col] = player
+
+#Terminal check
+func winning_move(b: Array, player: int) -> bool:
+	# Horizontal
+	for r in ROWS:
+		for c in range(0, COLS - 3):
+			if b[r][c] == player and b[r][c+1] == player and b[r][c+2] == player and b[r][c+3] == player:
+				return true
+	# Vertical
+	for c in COLS:
+		for r in range(0, ROWS - 3):
+			if b[r][c] == player and b[r+1][c] == player and b[r+2][c] == player and b[r+3][c] == player:
+				return true
+	# Diagonal up-right
+	for r in range(0, ROWS - 3):
+		for c in range(0, COLS - 3):
+			if b[r][c] == player and b[r+1][c+1] == player and b[r+2][c+2] == player and b[r+3][c+3] == player:
+				return true
+	# Diagonal up-left
+	for r in range(3, ROWS):
+		for c in range(0, COLS - 3):
+			if b[r][c] == player and b[r-1][c+1] == player and b[r-2][c+2] == player and b[r-3][c+3] == player:
+				return true
+	return false
+
+func is_terminal_node(b: Array) -> bool:
+	return winning_move(b, HUMAN) or winning_move(b, AI) or get_valid_columns(b).is_empty()
+# --- Heuristic evaluation ---
+func score_window(window: Array, player: int) -> int:
+	var score := 0
+	var opp := HUMAN if player == AI else AI
+
+	var p := 0
+	var o := 0
+	var e := 0
+	for v in window:
+		if v == player:
+			p += 1
+		elif v == opp:
+			o += 1
+		else:
+			e += 1
+
+	if p == 4:
+		score += 100000
+	elif p == 3 and e == 1:
+		score += 100
+	elif p == 2 and e == 2:
+		score += 10
+
+	# blocking opponent threats
+	if o == 3 and e == 1:
+		score -= 120
+
+	return score
+
+func evaluate_position(b: Array, player: int) -> int:
+	var score := 0
+
+	# Center control
+	var center_col := COLS / 2
+	var center_count := 0
+	for r in ROWS:
+		if b[r][center_col] == player:
+			center_count += 1
+	score += center_count * 6
+
+	# Horizontal
+	for r in ROWS:
+		for c in range(0, COLS - 3):
+			score += score_window([b[r][c], b[r][c+1], b[r][c+2], b[r][c+3]], player)
+
+	# Vertical
+	for c in COLS:
+		for r in range(0, ROWS - 3):
+			score += score_window([b[r][c], b[r+1][c], b[r+2][c], b[r+3][c]], player)
+
+	# Diagonal up-right
+	for r in range(0, ROWS - 3):
+		for c in range(0, COLS - 3):
+			score += score_window([b[r][c], b[r+1][c+1], b[r+2][c+2], b[r+3][c+3]], player)
+
+	# Diagonal up-left
+	for r in range(3, ROWS):
+		for c in range(0, COLS - 3):
+			score += score_window([b[r][c], b[r-1][c+1], b[r-2][c+2], b[r-3][c+3]], player)
+
+	return score
+#Minimax + alpha-beta pruning
+func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> Dictionary:
+	var valid_cols := get_valid_columns(b)
+	var terminal := is_terminal_node(b)
+
+	if depth == 0 or terminal:
+		if terminal:
+			if winning_move(b, AI):
+				return {"col": -1, "score": 100000000}
+			elif winning_move(b, HUMAN):
+				return {"col": -1, "score": -100000000}
+			else:
+				return {"col": -1, "score": 0}
+		return {"col": -1, "score": evaluate_position(b, AI)}
+
+	if maximizing:
+		var value := NEG_INF
+		var best_col := valid_cols[randi() % valid_cols.size()]
+		for col in valid_cols:
+			var temp := copy_board(b)
+			var row := get_next_open_row(temp, col)
+			drop_piece(temp, row, col, AI)
+
+			var res := minimax(temp, depth - 1, alpha, beta, false)
+			var s := int(res["score"])
+			if s > value:
+				value = s
+				best_col = col
+
+			alpha = max(alpha, value)
+			if alpha >= beta:
+				break
+
+		return {"col": best_col, "score": value}
+	else:
+		var value := POS_INF
+		var best_col := valid_cols[randi() % valid_cols.size()]
+		for col in valid_cols:
+			var temp := copy_board(b)
+			var row := get_next_open_row(temp, col)
+			drop_piece(temp, row, col, HUMAN)
+
+			var res := minimax(temp, depth - 1, alpha, beta, true)
+			var s := int(res["score"])
+			if s < value:
+				value = s
+				best_col = col
+
+			beta = min(beta, value)
+			if alpha >= beta:
+				break
+
+		return {"col": best_col, "score": value}
+
+# --- AI Helper ends --- 
 func _ready() -> void:
 	randomize()
 	reset_game()
@@ -75,7 +241,7 @@ func try_move(col: int) -> void:
 	apply_move(drop_row, col, HUMAN)
 
 	if check_win(drop_row, col, HUMAN):
-		end_game("You win! 🎉")
+		end_game("You win!")
 		return
 
 	if check_draw():
@@ -95,31 +261,36 @@ func make_ai_move() -> void:
 	if current_player != AI:
 		return
 
-	var legal_cols := get_legal_columns()
-	if legal_cols.is_empty():
+	var b_copy := copy_board(board)
+	var result := minimax(b_copy, AI_DEPTH, NEG_INF, POS_INF, true)
+	var col: int = int(result["col"])
+
+	if col == -1:
 		end_game("Draw.")
 		return
 
-	var col := legal_cols[randi() % legal_cols.size()]
 	var row := get_drop_row(col)
 	if row == -1:
-		return
+		# fallback: should be rare, but safe
+		var legal := get_legal_columns()
+		if legal.is_empty():
+			end_game("Draw.")
+			return
+		col = legal[randi() % legal.size()]
+		row = get_drop_row(col)
 
 	apply_move(row, col, AI)
 
-	# End conditions after AI moves
 	if check_win(row, col, AI):
 		end_game("AI wins.")
 		return
-
 	if check_draw():
 		end_game("Draw.")
 		return
 
-	# Back to human
 	current_player = HUMAN
 	status_label.text = "Your turn"
-
+# --- AI move over ---
 
 func end_game(result_text: String) -> void:
 	game_over = true

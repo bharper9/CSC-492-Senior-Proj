@@ -23,6 +23,7 @@ var last_move_col: int = -1
 var elapsed_seconds: int = 0
 
 func _ready() -> void:
+	randomize()
 	reset_game()
 
 func reset_game() -> void:
@@ -62,26 +63,63 @@ func try_move(col: int) -> void:
 	if game_over:
 		return
 
+	# Only allow human clicks on human turn
+	if current_player != HUMAN:
+		return
+
 	var drop_row := get_drop_row(col)
 	if drop_row == -1:
 		status_label.text = "Column is full. Choose another."
 		return
 
-	apply_move(drop_row, col, current_player)
+	apply_move(drop_row, col, HUMAN)
 
-	# End conditions
-	if check_win(drop_row, col, current_player):
-		var winner_text := "Player 1 wins! 🎉" if current_player == HUMAN else "Player 2 wins! 🎉"
-		end_game(winner_text)
+	if check_win(drop_row, col, HUMAN):
+		end_game("You win! 🎉")
 		return
 
 	if check_draw():
 		end_game("Draw.")
 		return
 
-	# Switch turns
-	current_player = AI if current_player == HUMAN else HUMAN
-	status_label.text = "Player 1's turn" if current_player == HUMAN else "Player 2's turn"
+	# Switch to AI turn
+	current_player = AI
+	status_label.text = "AI thinking..."
+	await get_tree().process_frame  # lets UI update
+	make_ai_move()
+
+
+func make_ai_move() -> void:
+	if game_over:
+		return
+	if current_player != AI:
+		return
+
+	var legal_cols := get_legal_columns()
+	if legal_cols.is_empty():
+		end_game("Draw.")
+		return
+
+	var col := legal_cols[randi() % legal_cols.size()]
+	var row := get_drop_row(col)
+	if row == -1:
+		return
+
+	apply_move(row, col, AI)
+
+	# End conditions after AI moves
+	if check_win(row, col, AI):
+		end_game("AI wins.")
+		return
+
+	if check_draw():
+		end_game("Draw.")
+		return
+
+	# Back to human
+	current_player = HUMAN
+	status_label.text = "Your turn"
+
 
 func end_game(result_text: String) -> void:
 	game_over = true
@@ -100,6 +138,13 @@ func get_drop_row(col: int) -> int:
 		if board[r][col] == EMPTY:
 			return r
 	return -1
+
+func get_legal_columns() -> Array[int]:
+	var cols: Array[int] = []
+	for c in COLS:
+		if get_drop_row(c) != -1:
+			cols.append(c)
+	return cols
 
 func apply_move(row: int, col: int, player: int) -> void:
 	board[row][col] = player

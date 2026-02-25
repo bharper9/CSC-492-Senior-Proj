@@ -21,6 +21,8 @@ var last_move_row: int = -1
 var last_move_col: int = -1
 
 var elapsed_seconds: int = 0
+var nodes_searched: int = 0
+var prunes: int = 0
 
 # --- AI Helper Functions ---
 const AI_DEPTH := 4 # Diffuclty spike 1 = easy 4+ AI is smart
@@ -133,9 +135,22 @@ func evaluate_position(b: Array, player: int) -> int:
 			score += score_window([b[r][c], b[r-1][c+1], b[r-2][c+2], b[r-3][c+3]], player)
 
 	return score
+#minmax helper
+func ordered_columns(cols: Array[int]) -> Array[int]:
+	var order := [3, 2, 4, 1, 5, 0, 6] 
+	var out: Array[int] = []
+	for c in order:
+		if cols.has(c):
+			out.append(c)
+	return out
+
 #Minimax + alpha-beta pruning
 func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> Dictionary:
+	nodes_searched += 1  
+
 	var valid_cols := get_valid_columns(b)
+	valid_cols = ordered_columns(valid_cols)  
+
 	var terminal := is_terminal_node(b)
 
 	if depth == 0 or terminal:
@@ -151,6 +166,7 @@ func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> D
 	if maximizing:
 		var value := NEG_INF
 		var best_col := valid_cols[randi() % valid_cols.size()]
+
 		for col in valid_cols:
 			var temp := copy_board(b)
 			var row := get_next_open_row(temp, col)
@@ -158,18 +174,21 @@ func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> D
 
 			var res := minimax(temp, depth - 1, alpha, beta, false)
 			var s := int(res["score"])
+
 			if s > value:
 				value = s
 				best_col = col
 
 			alpha = max(alpha, value)
 			if alpha >= beta:
+				prunes += 1  
 				break
 
 		return {"col": best_col, "score": value}
 	else:
 		var value := POS_INF
 		var best_col := valid_cols[randi() % valid_cols.size()]
+
 		for col in valid_cols:
 			var temp := copy_board(b)
 			var row := get_next_open_row(temp, col)
@@ -177,16 +196,17 @@ func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> D
 
 			var res := minimax(temp, depth - 1, alpha, beta, true)
 			var s := int(res["score"])
+
 			if s < value:
 				value = s
 				best_col = col
 
 			beta = min(beta, value)
 			if alpha >= beta:
+				prunes += 1  
 				break
 
 		return {"col": best_col, "score": value}
-
 # --- AI Helper ends --- 
 func _ready() -> void:
 	randomize()
@@ -261,8 +281,22 @@ func make_ai_move() -> void:
 	if current_player != AI:
 		return
 
+	# Reset + time BEFORE search
+	nodes_searched = 0
+	prunes = 0
+	# tt.clear() # only if you use a transposition table
+
+	var start_ms := Time.get_ticks_msec()
+
 	var b_copy := copy_board(board)
 	var result := minimax(b_copy, AI_DEPTH, NEG_INF, POS_INF, true)
+
+	var end_ms := Time.get_ticks_msec()
+	print("depth=", AI_DEPTH,
+		" nodes=", nodes_searched,
+		" prunes=", prunes,
+		" time_ms=", (end_ms - start_ms))
+
 	var col: int = int(result["col"])
 
 	if col == -1:
@@ -290,7 +324,7 @@ func make_ai_move() -> void:
 
 	current_player = HUMAN
 	status_label.text = "Your turn"
-# --- AI move over ---
+# Ai turn over
 
 func end_game(result_text: String) -> void:
 	game_over = true

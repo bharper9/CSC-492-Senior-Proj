@@ -13,6 +13,8 @@ const AI := 2
 @onready var timer_label: Label = $TimerLabel
 @onready var game_timer: Timer = $GameTimer
 
+var ai_player: BaseAI
+var ai_type: String = "minimax"
 var game_id: int = 0
 var move_history: Array = []
 var ai_move_times: Array = []
@@ -215,9 +217,25 @@ func minimax(b: Array, depth: int, alpha: int, beta: int, maximizing: bool) -> D
 				break
 
 		return {"col": best_col, "score": value}
+
+func setup_ai() -> void:
+	match ai_type:
+		"random":
+			ai_player = RandomAI.new()
+		"heuristic":
+			ai_player = HeuristicAI.new()
+		"adaptive":
+			var adaptive := AdaptiveAI.new()
+			adaptive.depth = 5
+			ai_player = adaptive
+		_:
+			var minimax_ai := MinimaxAI.new()
+			minimax_ai.depth = 5
+			ai_player = minimax_ai
 # --- AI Helper ends --- 
 func _ready() -> void:
 	randomize()
+	setup_ai()
 	reset_game()
 
 func reset_game() -> void:
@@ -289,35 +307,28 @@ func try_move(col: int) -> void:
 	await get_tree().process_frame  # lets UI update
 	make_ai_move()
 
-
 func make_ai_move() -> void:
 	if game_over:
 		return
 	if current_player != AI:
 		return
 
-	# Reset + time BEFORE search
-	nodes_searched = 0
-	prunes = 0
-	# tt.clear() # only if you use a transposition table
-
 	var start_ms := Time.get_ticks_msec()
-
-	var b_copy := copy_board(board)
-	var result := minimax(b_copy, AI_DEPTH, NEG_INF, POS_INF, true)
-#section below Possible issues with data saved 
+	var result := ai_player.choose_move(ConnectFourRules.copy_board(board))
 	var end_ms := Time.get_ticks_msec()
+
 	var move_time_ms := end_ms - start_ms
 	ai_move_times.append(move_time_ms)
-	total_ai_nodes += nodes_searched
-	total_ai_prunes += prunes
+	total_ai_nodes += int(result.get("nodes", 0))
+	total_ai_prunes += int(result.get("prunes", 0))
 
-	print("depth=", AI_DEPTH,
-		" nodes=", nodes_searched,
-		" prunes=", prunes,
-		" time_ms=", move_time_ms)
-#Section up possible issues 
 	var col: int = int(result["col"])
+
+	print("AI type=", ai_type,
+		" col=", col,
+		" time_ms=", move_time_ms,
+		" nodes=", result.get("nodes", 0),
+		" prunes=", result.get("prunes", 0))
 
 	if col == -1:
 		end_game("Draw.")
@@ -325,7 +336,6 @@ func make_ai_move() -> void:
 
 	var row := get_drop_row(col)
 	if row == -1:
-		# fallback: should be rare, but safe
 		var legal := get_legal_columns()
 		if legal.is_empty():
 			end_game("Draw.")

@@ -362,7 +362,8 @@ func end_game(result_text: String) -> void:
 		game_result = "loss"
 	else:
 		game_result = "draw"
-		save_game_log()
+
+	save_game_log()
 
 func average_array(values: Array) -> float:
 	if values.is_empty():

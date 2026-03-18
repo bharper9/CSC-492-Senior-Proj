@@ -14,7 +14,7 @@ const AI := 2
 @onready var game_timer: Timer = $GameTimer
 
 var ai_player: BaseAI
-var ai_type: String = "minimax"
+var ai_type: String = "random"
 var game_id: int = 0
 var move_history: Array = []
 var ai_move_times: Array = []
@@ -135,7 +135,7 @@ func make_ai_move() -> void:
 		return
 
 	var start_ms := Time.get_ticks_msec()
-	var result := ai_player.choose_move(ConnectFourRules.copy_board(board))
+	var result := ai_player.choose_move(board.duplicate(true))
 	var end_ms := Time.get_ticks_msec()
 
 	var move_time_ms := end_ms - start_ms
@@ -147,9 +147,7 @@ func make_ai_move() -> void:
 
 	print("AI type=", ai_type,
 		" col=", col,
-		" time_ms=", move_time_ms,
-		" nodes=", result.get("nodes", 0),
-		" prunes=", result.get("prunes", 0))
+		" time_ms=", move_time_ms)
 
 	if col == -1:
 		end_game("Draw.")
@@ -176,7 +174,6 @@ func make_ai_move() -> void:
 	current_player = HUMAN
 	turn_start_ms = Time.get_ticks_msec()
 	status_label.text = "Your turn"
-# Ai turn over
 
 func end_game(result_text: String) -> void:
 	game_over = true
@@ -295,7 +292,7 @@ func save_game_log() -> void:
 		"duration_seconds": elapsed_seconds,
 		"num_moves": move_history.size(),
 		"ai_type": ai_type,
-		"ai_depth": ai_player.depth if ai_player is MinimaxAI else 0,
+		"ai_depth": AI_DEPTH,
 		"avg_ai_move_time_ms": average_array(ai_move_times),
 		"total_ai_nodes": total_ai_nodes,
 		"total_ai_prunes": total_ai_prunes,

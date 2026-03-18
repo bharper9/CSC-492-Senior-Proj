@@ -8,11 +8,29 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Play" type="Button" parent="."]
-layout_mode = 0
-offset_left = 268.0
-offset_top = 131.0
-offset_right = 309.0
-offset_bottom = 162.0
-text = "play
+[node name="Play buttons" type="HBoxContainer" parent="."]
+layout_mode = 1
+offset_left = 532.0
+offset_top = 502.0
+offset_right = 881.0
+offset_bottom = 542.0
+
+[node name="Play" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "RandomAi
+"
+
+[node name="Play2" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "MinMaxAi
+"
+
+[node name="Play3" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "AdaptAi
+"
+
+[node name="Play4" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "HeuristicAI
 "

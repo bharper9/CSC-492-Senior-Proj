@@ -13,6 +13,13 @@ const AI := 2
 @onready var timer_label: Label = $TimerLabel
 @onready var game_timer: Timer = $GameTimer
 
+var game_id: int = 0
+var move_history: Array = []
+var ai_move_times: Array = []
+var total_ai_nodes: int = 0
+var total_ai_prunes: int = 0
+var game_result: String = ""
+
 var board: Array = []               # board[row][col]
 var current_player: int = HUMAN
 var game_over: bool = false
@@ -25,7 +32,7 @@ var nodes_searched: int = 0
 var prunes: int = 0
 
 # --- AI Helper Functions ---
-const AI_DEPTH := 4 # Diffuclty spike 1 = easy 4+ AI is smart
+const AI_DEPTH := 5 # Diffuclty spike 1 = easy 4+ AI is smart
 const NEG_INF := -99999999
 const POS_INF :=  99999999
 

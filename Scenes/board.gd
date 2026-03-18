@@ -19,6 +19,7 @@ var ai_move_times: Array = []
 var total_ai_nodes: int = 0
 var total_ai_prunes: int = 0
 var game_result: String = ""
+var turn_start_ms: int = 0
 
 var board: Array = []               # board[row][col]
 var current_player: int = HUMAN
@@ -232,6 +233,13 @@ func reset_game() -> void:
 	game_over = false
 	last_move_row = -1
 	last_move_col = -1
+#For game logs 
+	move_history = []
+	ai_move_times = []
+	total_ai_nodes = 0
+	total_ai_prunes = 0
+	game_result = ""
+	turn_start_ms = Time.get_ticks_msec()#Human logs????
 
 	# Timer reset + start
 	elapsed_seconds = 0
@@ -264,8 +272,8 @@ func try_move(col: int) -> void:
 	if drop_row == -1:
 		status_label.text = "Column is full. Choose another."
 		return
-
-	apply_move(drop_row, col, HUMAN)
+	var human_move_time_ms := Time.get_ticks_msec() - turn_start_ms
+	apply_move(drop_row, col, HUMAN, human_move_time_ms)
 
 	if check_win(drop_row, col, HUMAN):
 		end_game("You win!")
@@ -297,13 +305,18 @@ func make_ai_move() -> void:
 
 	var b_copy := copy_board(board)
 	var result := minimax(b_copy, AI_DEPTH, NEG_INF, POS_INF, true)
-
+#section below Possible issues with data saved 
 	var end_ms := Time.get_ticks_msec()
+	var move_time_ms := end_ms - start_ms
+	ai_move_times.append(move_time_ms)
+	total_ai_nodes += nodes_searched
+	total_ai_prunes += prunes
+
 	print("depth=", AI_DEPTH,
 		" nodes=", nodes_searched,
 		" prunes=", prunes,
-		" time_ms=", (end_ms - start_ms))
-
+		" time_ms=", move_time_ms)
+#Section up possible issues 
 	var col: int = int(result["col"])
 
 	if col == -1:
@@ -320,7 +333,7 @@ func make_ai_move() -> void:
 		col = legal[randi() % legal.size()]
 		row = get_drop_row(col)
 
-	apply_move(row, col, AI)
+	apply_move(row, col, AI, move_time_ms)
 
 	if check_win(row, col, AI):
 		end_game("AI wins.")
@@ -330,6 +343,7 @@ func make_ai_move() -> void:
 		return
 
 	current_player = HUMAN
+	turn_start_ms = Time.get_ticks_msec()
 	status_label.text = "Your turn"
 # Ai turn over
 
@@ -341,6 +355,23 @@ func end_game(result_text: String) -> void:
 	print("Game duration (seconds): ", elapsed_seconds)
 
 	status_label.text = result_text
+
+	if result_text == "You win!":
+		game_result = "win"
+	elif result_text == "AI wins.":
+		game_result = "loss"
+	else:
+		game_result = "draw"
+		save_game_log()
+
+func average_array(values: Array) -> float:
+	if values.is_empty():
+		return 0.0
+
+	var total := 0.0
+	for v in values:
+		total += float(v)
+	return total / values.size()
 
 func get_drop_row(col: int) -> int:
 	if col < 0 or col >= COLS:
@@ -358,15 +389,26 @@ func get_legal_columns() -> Array[int]:
 			cols.append(c)
 	return cols
 
-func apply_move(row: int, col: int, player: int) -> void:
+func apply_move(row: int, col: int, player: int, move_time_ms: int = -1) -> void:
 	board[row][col] = player
 	last_move_row = row
 	last_move_col = col
 
+	var move_entry := {
+		"turn": move_history.size() + 1,
+		"player": "human" if player == HUMAN else "ai",
+		"row": row,
+		"col": col
+	}
+
+	if move_time_ms >= 0:
+		move_entry["move_time_ms"] = move_time_ms
+
+	move_history.append(move_entry)
+
 	board_view.call("set_board", board)
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
-
 func check_draw() -> bool:
 	# If top row is full across all columns, it's a draw (assuming no win)
 	for c in COLS:
@@ -410,3 +452,36 @@ func update_timer_label() -> void:
 
 func _on_reset_button_pressed() -> void:
 	reset_game()
+
+func save_game_log() -> void:
+	var timestamp := Time.get_datetime_string_from_system()
+
+	var game_data := {
+		"game_id": Time.get_unix_time_from_system(),
+		"timestamp": timestamp,
+		"result": game_result,
+		"duration_seconds": elapsed_seconds,
+		"num_moves": move_history.size(),
+		"ai_depth": AI_DEPTH,
+		"avg_ai_move_time_ms": average_array(ai_move_times),
+		"total_ai_nodes": total_ai_nodes,
+		"total_ai_prunes": total_ai_prunes,
+		"moves": move_history
+	}
+
+	var path := "user://connect_four_logs.jsonl"
+	print("Absolute log path: ", ProjectSettings.globalize_path(path))
+	var file := FileAccess.open(path, FileAccess.READ_WRITE)
+
+	if file == null:
+		file = FileAccess.open(path, FileAccess.WRITE)
+		if file == null:
+			push_error("Could not open log file.")
+			return
+
+	file.seek_end()
+	file.store_line(JSON.stringify(game_data))
+	file.close()
+
+	print("Saved game log to: ", path)
+	print(JSON.stringify(game_data))

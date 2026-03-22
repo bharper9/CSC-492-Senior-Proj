@@ -14,7 +14,7 @@ const AI := 2
 @onready var game_timer: Timer = $GameTimer
 
 var ai_player: BaseAI
-var ai_type: String = "random"
+var ai_type: String = "minimax"
 var game_id: int = 0
 var move_history: Array = []
 var ai_move_times: Array = []
@@ -49,7 +49,7 @@ func setup_ai() -> void:
 			var adaptive := AdaptiveAI.new()
 			adaptive.depth = 5
 			ai_player = adaptive
-		_:
+		"minimax":
 			var minimax_ai := MinimaxAI.new()
 			minimax_ai.depth = 5
 			ai_player = minimax_ai

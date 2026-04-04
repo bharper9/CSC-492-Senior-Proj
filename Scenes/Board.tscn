@@ -39,6 +39,26 @@ offset_right = 779.0
 offset_bottom = 34.0
 text = "MainMenu"
 
+[node name="Label" type="Label" parent="."]
+offset_left = 628.0
+offset_top = 108.0
+offset_right = 915.0
+offset_bottom = 369.0
+
+[node name="SummaryPanel" type="Panel" parent="."]
+offset_left = 4.0
+offset_top = 364.0
+offset_right = 100.0
+offset_bottom = 463.0
+metadata/_edit_use_anchors_ = true
+
+[node name="SummaryLabel" type="Label" parent="SummaryPanel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 87.0
+offset_bottom = 85.0
+
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]
 [connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]

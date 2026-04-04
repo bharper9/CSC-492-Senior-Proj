@@ -99,6 +99,7 @@ func reset_game() -> void:
 	board_view.call("set_board", board)
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
+	update_stats_panel()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over:
@@ -245,6 +246,8 @@ func end_game(result_text: String) -> void:
 
 	save_game_log()
 	save_game_log_csv()
+	update_stats_panel()
+	show_game_summary()
 
 func average_array(values: Array) -> float:
 	if values.is_empty():
@@ -338,6 +341,7 @@ func apply_move(
 	board_view.call("set_board", board)
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
+	update_stats_panel()
 func check_draw() -> bool:
 	# If top row is full across all columns, it's a draw (assuming no win)
 	for c in COLS:
@@ -493,3 +497,51 @@ func save_game_log_csv() -> void:
 
 	file.close()
 	print("Saved CSV move log to: ", path)
+
+@onready var stats_label: Label = $Label
+func update_stats_panel() -> void:
+	var avg_ai := average_array(ai_move_times)
+	var avg_human := average_array(human_move_times)
+
+	stats_label.text = \
+		"Game ID: %s\n" % str(session_id) + \
+		"Moves: %d\n" % move_history.size() + \
+		"AI Type: %s\n" % ai_type + \
+		"Avg Human Move: %.1f ms\n" % avg_human + \
+		"Avg AI Move: %.1f ms\n" % avg_ai + \
+		"AI Nodes: %d\n" % total_ai_nodes + \
+		"AI Prunes: %d\n" % total_ai_prunes
+
+@onready var summary_panel: Control = $SummaryPanel
+@onready var summary_label: Label = $SummaryPanel/SummaryLabel
+
+func show_game_summary() -> void:
+	var avg_ai := average_array(ai_move_times)
+	var avg_human := average_array(human_move_times)
+
+	var human_mistakes := 0
+	var ai_mistakes := 0
+
+	for move in move_history:
+		var label = str(move.get("mistake_label", "none"))
+		if label != "none" and label != "unlabeled":
+			if move.get("player", "") == "human":
+				human_mistakes += 1
+			elif move.get("player", "") == "ai":
+				ai_mistakes += 1
+
+	summary_label.text = \
+		"Game Summary\n\n" + \
+		"Result: %s\n" % game_result + \
+		"Winner: %s\n" % winner_label + \
+		"Duration: %d sec\n" % elapsed_seconds + \
+		"Moves: %d\n" % move_history.size() + \
+		"AI Type: %s\n" % ai_type + \
+		"Avg Human Move: %.1f ms\n" % avg_human + \
+		"Avg AI Move: %.1f ms\n" % avg_ai + \
+		"AI Nodes: %d\n" % total_ai_nodes + \
+		"AI Prunes: %d\n" % total_ai_prunes + \
+		"Human Mistakes: %d\n" % human_mistakes + \
+		"AI Mistakes: %d" % ai_mistakes
+
+	summary_panel.visible = true

@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://u5fbwqc25vnr"]
+[gd_scene load_steps=2 format=3 uid="uid://u5fbwqc25vnr"]
+
+[ext_resource type="Script" uid="uid://dpjt32mnd3n51" path="res://Scenes/game_start.gd" id="1_tdh8d"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -7,30 +9,36 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_tdh8d")
 
 [node name="Play buttons" type="HBoxContainer" parent="."]
 layout_mode = 1
-offset_left = 532.0
-offset_top = 502.0
-offset_right = 881.0
-offset_bottom = 542.0
+offset_left = 202.0
+offset_top = 292.0
+offset_right = 551.0
+offset_bottom = 332.0
 
-[node name="Play" type="Button" parent="Play buttons"]
+[node name="Random" type="Button" parent="Play buttons"]
 layout_mode = 2
 text = "RandomAi
 "
 
-[node name="Play2" type="Button" parent="Play buttons"]
+[node name="MinMax" type="Button" parent="Play buttons"]
 layout_mode = 2
 text = "MinMaxAi
 "
 
-[node name="Play3" type="Button" parent="Play buttons"]
+[node name="Adapt" type="Button" parent="Play buttons"]
 layout_mode = 2
 text = "AdaptAi
 "
 
-[node name="Play4" type="Button" parent="Play buttons"]
+[node name="Herustic" type="Button" parent="Play buttons"]
 layout_mode = 2
 text = "HeuristicAI
 "
+
+[connection signal="pressed" from="Play buttons/Random" to="." method="_on_random_pressed"]
+[connection signal="pressed" from="Play buttons/MinMax" to="." method="_on_min_max_pressed"]
+[connection signal="pressed" from="Play buttons/Adapt" to="." method="_on_adapt_pressed"]
+[connection signal="pressed" from="Play buttons/Herustic" to="." method="_on_herustic_pressed"]

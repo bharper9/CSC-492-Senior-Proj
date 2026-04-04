@@ -32,5 +32,13 @@ text = "Time: 00:00"
 
 [node name="GameTimer" type="Timer" parent="."]
 
+[node name="MainMenu" type="Button" parent="."]
+offset_left = 688.0
+offset_top = 3.0
+offset_right = 779.0
+offset_bottom = 34.0
+text = "MainMenu"
+
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]
+[connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]

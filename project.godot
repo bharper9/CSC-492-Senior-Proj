@@ -14,6 +14,10 @@ config/name="CSC 492"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://Art/icon.svg"
 
+[autoload]
+
+GameSettings="*res://GameSettings.gd"
+
 [display]
 
 window/size/viewport_width=2000

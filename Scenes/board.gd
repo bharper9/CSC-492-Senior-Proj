@@ -34,6 +34,11 @@ var elapsed_seconds: int = 0
 var nodes_searched: int = 0
 var prunes: int = 0
 
+var session_start_ms: int = 0
+var human_move_times: Array = []
+var session_id: int = 0
+var winner_label: String = ""
+
 # --- AI Helper Functions ---
 const AI_DEPTH := 5 # Diffuclty spike 1 = easy 4+ AI is smart
 const NEG_INF := -99999999
@@ -56,6 +61,7 @@ func setup_ai() -> void:
 # --- AI Helper ends --- 
 func _ready() -> void:
 	randomize()
+	ai_type = GameSettings.ai_type
 	setup_ai()
 	reset_game()
 
@@ -75,10 +81,14 @@ func reset_game() -> void:
 #For game logs 
 	move_history = []
 	ai_move_times = []
+	human_move_times = []
 	total_ai_nodes = 0
 	total_ai_prunes = 0
 	game_result = ""
-	turn_start_ms = Time.get_ticks_msec()#Human logs????
+	winner_label = ""
+	session_id = Time.get_unix_time_from_system()
+	session_start_ms = Time.get_ticks_msec()
+	turn_start_ms = session_start_ms
 
 	# Timer reset + start
 	elapsed_seconds = 0
@@ -211,27 +221,79 @@ func get_drop_row(col: int) -> int:
 			return r
 	return -1
 
+func clone_board(src_board: Array) -> Array:
+	return src_board.duplicate(true)
+
 func get_legal_columns() -> Array[int]:
 	var cols: Array[int] = []
 	for c in COLS:
 		if get_drop_row(c) != -1:
 			cols.append(c)
-	return cols
+	return cols#HHHHHHHHHHH
 
-func apply_move(row: int, col: int, player: int, move_time_ms: int = -1) -> void:
+func evaluate_position(for_player: int, eval_board: Array) -> float:
+	# Replace this laterwith  AI types.
+	return 0.0
+
+func label_mistake(best_score: float, chosen_score: float) -> String:
+	var loss := best_score - chosen_score
+
+	if loss <= 0.0:
+		return "none"
+	elif loss >= 1000.0:
+		return "blunder"
+	elif loss >= 200.0:
+		return "major"
+	elif loss >= 50.0:
+		return "minor"
+	else:
+		return "slight"
+
+func compute_confidence_gap(best_score: Variant, second_best_score: Variant) -> Variant:
+	if best_score == null or second_best_score == null:
+		return null
+	return float(best_score) - float(second_best_score)
+
+func board_to_string(src_board: Array) -> String:
+	var rows_text: Array = []
+	for row in src_board:
+		var row_text: Array = []
+		for cell in row:
+			row_text.append(str(cell))
+		rows_text.append(",".join(row_text))
+	return " | ".join(rows_text)
+
+func apply_move(
+	row: int,
+	col: int,
+	player: int,
+	move_time_ms: int = -1,
+	extra_data: Dictionary = {}
+) -> void:
+	var board_before: Array = clone_board(board)
+
 	board[row][col] = player
 	last_move_row = row
 	last_move_col = col
+
+	var board_after: Array = clone_board(board)
 
 	var move_entry := {
 		"turn": move_history.size() + 1,
 		"player": "human" if player == HUMAN else "ai",
 		"row": row,
-		"col": col
+		"col": col,
+		"timestamp": Time.get_datetime_string_from_system(),
+		"elapsed_ms": Time.get_ticks_msec() - session_start_ms,
+		"board_before": board_before,
+		"board_after": board_after
 	}
 
 	if move_time_ms >= 0:
 		move_entry["move_time_ms"] = move_time_ms
+
+	for key in extra_data.keys():
+		move_entry[key] = extra_data[key]
 
 	move_history.append(move_entry)
 
@@ -316,3 +378,7 @@ func save_game_log() -> void:
 
 	print("Saved game log to: ", path)
 	print(JSON.stringify(game_data))
+
+
+func _on_main_menu_pressed():
+	get_tree().change_scene_to_file("res://Scenes/GameStart.tscn")

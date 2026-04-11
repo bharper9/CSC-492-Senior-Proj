@@ -28,13 +28,18 @@ var winning_cells: Array = []
 
 func _ready() -> void:
 	reset_replay_board()
-	replay_timer.wait_time = 0.75
-	if speed_slider:
+
+	if is_instance_valid(replay_timer):
+		replay_timer.wait_time = 0.75
+
+	if is_instance_valid(speed_slider):
 		speed_slider.min_value = 0.1
 		speed_slider.max_value = 2.0
 		speed_slider.step = 0.1
 		speed_slider.value = 0.75
+
 	update_replay_ui()
+	load_latest_replay_file()
 
 func reset_replay_board() -> void:
 	replay_board = []
@@ -329,3 +334,29 @@ func load_moves_from_csv(path: String) -> Array:
 
 func _on_load_latest_button_pressed() -> void:
 	load_latest_saved_game()
+
+func load_latest_replay_file() -> void:
+	var path := "user://latest_replay.json"
+
+	if not FileAccess.file_exists(path):
+		print("No latest replay file found.")
+		return
+
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		print("Could not open latest replay file.")
+		return
+
+	var text := file.get_as_text()
+	file.close()
+
+	var parsed = JSON.parse_string(text)
+	if parsed == null or not (parsed is Dictionary):
+		print("Invalid replay JSON.")
+		return
+
+	var game_data: Dictionary = parsed
+	var moves: Array = game_data.get("moves", [])
+	load_replay(moves)
+
+	print("Loaded latest replay.")

@@ -228,6 +228,9 @@ func make_ai_move() -> void:
 func end_game(result_text: String) -> void:
 	game_over = true
 	game_timer.stop()
+	save_game_log()
+	save_latest_replay()
+	save_game_log_csv()
 
 	print("Game result: ", result_text)
 	print("Game duration (seconds): ", elapsed_seconds)
@@ -545,3 +548,27 @@ func show_game_summary() -> void:
 		"AI Mistakes: %d" % ai_mistakes
 
 	summary_panel.visible = true
+
+func save_latest_replay() -> void:
+	var latest_game_data := {
+		"game_id": session_id,
+		"timestamp": Time.get_datetime_string_from_system(),
+		"result": game_result,
+		"duration_seconds": elapsed_seconds,
+		"num_moves": move_history.size(),
+		"ai_type": ai_type,
+		"moves": move_history,
+		"final_board": board.duplicate(true)
+	}
+
+	var path := "user://latest_replay.json"
+	var file := FileAccess.open(path, FileAccess.WRITE)
+
+	if file == null:
+		push_error("Could not save latest replay.")
+		return
+
+	file.store_string(JSON.stringify(latest_game_data))
+	file.close()
+
+	print("Saved latest replay to: ", ProjectSettings.globalize_path(path))

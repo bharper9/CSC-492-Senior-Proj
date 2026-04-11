@@ -1,0 +1,95 @@
+[gd_scene load_steps=3 format=3 uid="uid://4hsspw4j8kks"]
+
+[ext_resource type="Script" uid="uid://cbowtml4x2rx" path="res://node_2d.gd" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_0e48y"]
+
+[node name="Replayscene" type="Node2D"]
+script = ExtResource("1_wtcfe")
+
+[node name="ReplayBoardView" type="Node2D" parent="."]
+script = ExtResource("2_0e48y")
+
+[node name="ReplayInfoPanel" type="Panel" parent="."]
+offset_left = 756.0
+offset_top = 77.0
+offset_right = 916.0
+offset_bottom = 218.0
+
+[node name="MarginContainer" type="MarginContainer" parent="ReplayInfoPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ReplayInfoPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Movelabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Move"
+
+[node name="PlayerLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Player"
+
+[node name="EvaLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Eva"
+
+[node name="Annotationlabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Annotation"
+
+[node name="ControlsPanel" type="Panel" parent="."]
+offset_left = 769.0
+offset_top = 280.0
+offset_right = 924.0
+offset_bottom = 468.0
+
+[node name="MarginContainer" type="MarginContainer" parent="ControlsPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ControlsPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="PrevButton" type="Button" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Prev"
+
+[node name="NextButton" type="Button" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Next
+"
+
+[node name="PlayPauseButton" type="Button" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Play/Pause"
+
+[node name="LoadLatestButton" type="Button" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SpeedSlider" type="HSlider" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MoveSpinBox" type="SpinBox" parent="ControlsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ReplayTimer" type="Timer" parent="."]
+
+[connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/PrevButton" to="." method="_on_prev_button_pressed"]
+[connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/PlayPauseButton" to="." method="_on_play_pause_button_pressed"]
+[connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/LoadLatestButton" to="." method="_on_load_latest_button_pressed"]
+[connection signal="value_changed" from="ControlsPanel/MarginContainer/VBoxContainer/SpeedSlider" to="." method="_on_speed_slider_value_changed"]
+[connection signal="value_changed" from="ControlsPanel/MarginContainer/VBoxContainer/MoveSpinBox" to="." method="_on_move_spin_box_value_changed"]
+[connection signal="timeout" from="ReplayTimer" to="." method="_on_replay_timer_timeout"]

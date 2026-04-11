@@ -38,7 +38,12 @@ layout_mode = 2
 text = "HeuristicAI
 "
 
+[node name="Replays" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "Replays"
+
 [connection signal="pressed" from="Play buttons/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="Play buttons/MinMax" to="." method="_on_min_max_pressed"]
 [connection signal="pressed" from="Play buttons/Adapt" to="." method="_on_adapt_pressed"]
 [connection signal="pressed" from="Play buttons/Herustic" to="." method="_on_herustic_pressed"]
+[connection signal="pressed" from="Play buttons/Replays" to="." method="_on_replays_pressed"]

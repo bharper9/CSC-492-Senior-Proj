@@ -40,7 +40,7 @@ var session_id: int = 0
 var winner_label: String = ""
 
 # --- AI Helper Functions ---
-const AI_DEPTH := 5 # Diffuclty spike 1 = easy 4+ AI is smart
+const AI_DEPTH := 1 # Diffuclty spike 1 = easy 4+ AI is smart
 const NEG_INF := -99999999
 const POS_INF :=  99999999
 
@@ -572,3 +572,7 @@ func save_latest_replay() -> void:
 	file.close()
 
 	print("Saved latest replay to: ", ProjectSettings.globalize_path(path))
+
+
+func _on_setting_pressed():
+	$"Settings Window".visible = true

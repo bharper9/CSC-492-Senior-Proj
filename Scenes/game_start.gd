@@ -19,3 +19,7 @@ func _on_adapt_pressed()-> void:
 
 func _on_replays_pressed():
 	get_tree().change_scene_to_file("res://node_2d.tscn")
+
+
+func _on_setting_pressed():
+	$"Settings Window".visible = true

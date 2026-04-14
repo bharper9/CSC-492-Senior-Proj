@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://u5fbwqc25vnr"]
+[gd_scene load_steps=3 format=3 uid="uid://u5fbwqc25vnr"]
 
 [ext_resource type="Script" uid="uid://dpjt32mnd3n51" path="res://Scenes/game_start.gd" id="1_tdh8d"]
+[ext_resource type="PackedScene" uid="uid://doc2suvkx7vq8" path="res://Scenes/settings_window.tscn" id="2_8g2f7"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -42,8 +43,15 @@ text = "HeuristicAI
 layout_mode = 2
 text = "Replays"
 
+[node name="Setting" type="Button" parent="Play buttons"]
+layout_mode = 2
+text = "Settings"
+
+[node name="Settings Window" parent="." instance=ExtResource("2_8g2f7")]
+
 [connection signal="pressed" from="Play buttons/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="Play buttons/MinMax" to="." method="_on_min_max_pressed"]
 [connection signal="pressed" from="Play buttons/Adapt" to="." method="_on_adapt_pressed"]
 [connection signal="pressed" from="Play buttons/Herustic" to="." method="_on_herustic_pressed"]
 [connection signal="pressed" from="Play buttons/Replays" to="." method="_on_replays_pressed"]
+[connection signal="pressed" from="Play buttons/Setting" to="." method="_on_setting_pressed"]

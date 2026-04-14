@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bdjo65rlvivej"]
+[gd_scene load_steps=4 format=3 uid="uid://bdjo65rlvivej"]
 
 [ext_resource type="Script" uid="uid://dwhp7ptv0ecic" path="res://Scenes/board.gd" id="1_igt3p"]
 [ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_37q8m"]
+[ext_resource type="PackedScene" uid="uid://doc2suvkx7vq8" path="res://Scenes/settings_window.tscn" id="3_37q8m"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_igt3p")
@@ -46,10 +47,10 @@ offset_right = 915.0
 offset_bottom = 369.0
 
 [node name="SummaryPanel" type="Panel" parent="."]
-offset_left = 4.0
-offset_top = 364.0
-offset_right = 100.0
-offset_bottom = 463.0
+offset_left = 664.0
+offset_top = 251.0
+offset_right = 760.0
+offset_bottom = 350.0
 metadata/_edit_use_anchors_ = true
 
 [node name="SummaryLabel" type="Label" parent="SummaryPanel"]
@@ -60,6 +61,16 @@ offset_right = 87.0
 offset_bottom = 85.0
 metadata/_edit_use_anchors_ = true
 
+[node name="Setting" type="Button" parent="."]
+offset_left = 791.0
+offset_top = 5.0
+offset_right = 861.0
+offset_bottom = 36.0
+text = "Settings"
+
+[node name="Settings Window" parent="." instance=ExtResource("3_37q8m")]
+
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]
 [connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]
+[connection signal="pressed" from="Setting" to="." method="_on_setting_pressed"]

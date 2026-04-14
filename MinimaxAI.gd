@@ -4,7 +4,7 @@ class_name MinimaxAI
 const NEG_INF := -99999999
 const POS_INF := 99999999
 
-var depth: int = 5
+var depth: int = 3
 var nodes_searched: int = 0
 var prunes: int = 0
 

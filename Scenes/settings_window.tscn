@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://doc2suvkx7vq8"]
+
+[ext_resource type="Script" uid="uid://x3yp4u4iikaq" path="res://Scenes/settings_window.gd" id="1_ben5s"]
+
+[node name="Settings Window" type="Window"]
+oversampling_override = 1.0
+title = "Settings"
+initial_position = 1
+size = Vector2i(450, 450)
+script = ExtResource("1_ben5s")
+
+[node name="MainMenu" type="Button" parent="."]
+offset_left = 150.0
+offset_top = 23.0
+offset_right = 292.0
+offset_bottom = 74.0
+text = "MainMenu
+"
+
+[node name="Music" type="HSlider" parent="."]
+offset_left = 9.0
+offset_top = 83.0
+offset_right = 400.0
+offset_bottom = 135.0
+
+[node name="SFX" type="HSlider" parent="."]
+offset_left = 13.0
+offset_top = 139.0
+offset_right = 404.0
+offset_bottom = 191.0
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]

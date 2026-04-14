@@ -576,3 +576,7 @@ func save_latest_replay() -> void:
 
 func _on_setting_pressed():
 	$"Settings Window".visible = true
+
+
+func _on_replay_pressed():
+	get_tree().change_scene_to_file("res://node_2d.tscn")

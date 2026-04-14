@@ -1,19 +1,19 @@
 [gd_scene load_steps=3 format=3 uid="uid://4hsspw4j8kks"]
 
-[ext_resource type="Script" uid="uid://cbowtml4x2rx" path="res://node_2d.gd" id="1_wtcfe"]
-[ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_0e48y"]
+[ext_resource type="Script" uid="uid://cbowtml4x2rx" path="res://node_2d.gd" id="1_v1qfn"]
+[ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_hh5uf"]
 
 [node name="Replayscene" type="Node2D"]
-script = ExtResource("1_wtcfe")
+script = ExtResource("1_v1qfn")
 
 [node name="ReplayBoardView" type="Node2D" parent="."]
-script = ExtResource("2_0e48y")
+script = ExtResource("2_hh5uf")
 
 [node name="ReplayInfoPanel" type="Panel" parent="."]
-offset_left = 756.0
-offset_top = 77.0
-offset_right = 916.0
-offset_bottom = 218.0
+offset_left = 604.0
+offset_top = 219.0
+offset_right = 917.0
+offset_bottom = 645.0
 
 [node name="MarginContainer" type="MarginContainer" parent="ReplayInfoPanel"]
 layout_mode = 0
@@ -44,11 +44,31 @@ text = "Eva"
 layout_mode = 2
 text = "Annotation"
 
+[node name="AIExplanationLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "AI Explain"
+
+[node name="MistakeLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "MistakeLabel"
+
+[node name="ConfidenceLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "ConfidenceLabel"
+
+[node name="EvalChangeLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "EvalChangeLabel"
+
+[node name="CriticalMoveLabel" type="Label" parent="ReplayInfoPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "CriticalMoveLabel"
+
 [node name="ControlsPanel" type="Panel" parent="."]
-offset_left = 769.0
-offset_top = 280.0
-offset_right = 924.0
-offset_bottom = 468.0
+offset_left = 604.0
+offset_top = 23.0
+offset_right = 759.0
+offset_bottom = 211.0
 
 [node name="MarginContainer" type="MarginContainer" parent="ControlsPanel"]
 layout_mode = 0

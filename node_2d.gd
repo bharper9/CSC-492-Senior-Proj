@@ -6,12 +6,16 @@ const EMPTY := 0
 const HUMAN := 1
 const AI := 2
 
+@onready var ai_explanation_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/AIExplanationLabel
+@onready var mistake_label_ui: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/MistakeLabel
+@onready var confidence_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/ConfidenceLabel
+@onready var eval_change_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/EvalChangeLabel
+@onready var critical_move_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/CriticalMoveLabel
 @onready var board_view: Node2D = $ReplayBoardView
 @onready var move_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/Movelabel
 @onready var player_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/PlayerLabel
 @onready var eval_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/EvaLabel
 @onready var annotation_label: Label = $ReplayInfoPanel/MarginContainer/VBoxContainer/Annotationlabel
-
 @onready var prev_button: Button = $ControlsPanel/MarginContainer/VBoxContainer/PrevButton
 @onready var next_button: Button = $ControlsPanel/MarginContainer/VBoxContainer/NextButton
 @onready var play_pause_button: Button = $ControlsPanel/MarginContainer/VBoxContainer/PlayPauseButton
@@ -119,6 +123,7 @@ func rebuild_board_to_move(target_index: int) -> void:
 		board_view.call("set_last_move", last_row, last_col)
 
 	update_winning_highlight(last_row, last_col)
+	highlight_critical_move()
 	update_replay_ui()
 	board_view.queue_redraw()
 
@@ -136,6 +141,11 @@ func update_replay_ui() -> void:
 		player_label.text = "Player: None"
 		eval_label.text = "Evaluation: N/A"
 		annotation_label.text = "No replay loaded"
+		ai_explanation_label.text = ""
+		mistake_label_ui.text = ""
+		confidence_label.text = ""
+		eval_change_label.text = ""
+		critical_move_label.text = ""
 		prev_button.disabled = true
 		next_button.disabled = true
 		return
@@ -148,6 +158,11 @@ func update_replay_ui() -> void:
 		player_label.text = "Player: None"
 		eval_label.text = "Evaluation: N/A"
 		annotation_label.text = "Game start"
+		ai_explanation_label.text = ""
+		mistake_label_ui.text = ""
+		confidence_label.text = ""
+		eval_change_label.text = ""
+		critical_move_label.text = ""
 		return
 
 	var move: Dictionary = replay_moves[replay_index - 1]
@@ -158,12 +173,22 @@ func update_replay_ui() -> void:
 		str(move.get("row", "")),
 		str(move.get("col", ""))
 	]
-	eval_label.text = "Eval: %s -> %s" % [
-		str(move.get("evaluation_before", "N/A")),
-		str(move.get("evaluation_after", "N/A"))
-	]
-	annotation_label.text = make_annotation(move)
 
+	var eval_before = move.get("evaluation_before", null)
+	var eval_after = move.get("evaluation_after", null)
+
+	eval_label.text = "Eval: %s -> %s" % [
+		str(eval_before if eval_before != null else "N/A"),
+		str(eval_after if eval_after != null else "N/A")
+	]
+
+	annotation_label.text = str(move.get("annotation", make_annotation(move)))
+
+	ai_explanation_label.text = build_ai_explanation_text(move)
+	mistake_label_ui.text = build_mistake_text(move)
+	confidence_label.text = build_confidence_text(move)
+	eval_change_label.text = build_eval_change_text(move)
+	critical_move_label.text = build_critical_move_text(move)
 func _on_prev_button_pressed() -> void:
 	step_backward()
 
@@ -360,3 +385,123 @@ func load_latest_replay_file() -> void:
 	load_replay(moves)
 
 	print("Loaded latest replay.")
+
+func build_replay_explanation_text(move: Dictionary) -> String:
+	var player := str(move.get("player", "")).to_lower()
+
+	if player == "ai":
+		var best_move = move.get("best_move", null)
+		var best_score = move.get("best_score", "N/A")
+		var second_best_score = move.get("second_best_score", "N/A")
+		var confidence_gap = move.get("confidence_gap", "N/A")
+		var reason = str(move.get("annotation", "No explanation available."))
+
+		var best_move_text := "N/A"
+		if best_move != null and best_move is Dictionary:
+			best_move_text = "Column %s" % str(best_move.get("col", "N/A"))
+		else:
+			best_move_text = "Column %s" % str(move.get("col", "N/A"))
+
+		return (
+			"AI Explanation\n" +
+			"Best Move: %s\n" % best_move_text +
+			"Score: %s\n" % str(best_score) +
+			"Second Best: %s\n" % str(second_best_score) +
+			"Confidence Gap: %s\n" % str(confidence_gap) +
+			"Why: %s" % reason
+		)
+
+	if player == "human":
+		var mistake_label = str(move.get("mistake_label", "none"))
+		var reason = str(move.get("annotation", "Human move recorded."))
+
+		return (
+			"Human Move Analysis\n" +
+			"Mistake Label: %s\n" % mistake_label +
+			"Why: %s" % reason
+		)
+
+	return ""
+
+func build_ai_explanation_text(move: Dictionary) -> String:
+	var player := str(move.get("player", "")).to_lower()
+	if player != "ai":
+		return "AI Explanation: N/A"
+
+	var reason := str(move.get("annotation", "No explanation available."))
+	var best_score = move.get("best_score", "N/A")
+	var second_best_score = move.get("second_best_score", "N/A")
+
+	return (
+		"AI Explanation: %s\n" % reason +
+		"Best Score: %s\n" % str(best_score) +
+		"Second Best: %s" % str(second_best_score)
+	)
+
+func build_mistake_text(move: Dictionary) -> String:
+	var label := str(move.get("mistake_label", "none"))
+	return "Mistake Label: %s" % label
+func build_confidence_text(move: Dictionary) -> String:
+	var gap = move.get("confidence_gap", null)
+	if gap == null:
+		return "Confidence Gap: N/A"
+	return "Confidence Gap: %s" % str(gap)
+
+func build_eval_change_text(move: Dictionary) -> String:
+	var before = move.get("evaluation_before", null)
+	var after = move.get("evaluation_after", null)
+
+	if before == null or after == null:
+		return "Evaluation Change: N/A"
+
+	var delta = float(after) - float(before)
+	var sign = "+"
+	if delta < 0:
+		sign = ""
+
+	return "Evaluation Change: %s%s" % [sign, str(delta)]
+
+func build_critical_move_text(move: Dictionary) -> String:
+	if is_critical_move(move):
+		return "Critical Move: YES"
+	return "Critical Move: No"
+
+func is_critical_move(move: Dictionary) -> bool:
+	var gap = move.get("confidence_gap", null)
+	var before = move.get("evaluation_before", null)
+	var after = move.get("evaluation_after", null)
+	var mistake = str(move.get("mistake_label", "none")).to_lower()
+	var annotation = str(move.get("annotation", "")).to_lower()
+
+	if mistake == "major" or mistake == "blunder":
+		return true
+
+	if annotation.find("win") != -1:
+		return true
+
+	if annotation.find("block") != -1:
+		return true
+
+	if gap != null and float(gap) >= 50.0:
+		return true
+
+	if before != null and after != null:
+		var delta = abs(float(after) - float(before))
+		if delta >= 75.0:
+			return true
+
+	return false
+
+func highlight_critical_move() -> void:
+	if replay_index <= 0 or replay_index > replay_moves.size():
+		return
+
+	var move: Dictionary = replay_moves[replay_index - 1]
+	if not is_critical_move(move):
+		return
+
+	# For now, just change the annotation label or panel color later if desired.
+	annotation_label.modulate = Color(1.0, 0.85, 0.4)
+
+func reset_analysis_colors() -> void:
+	annotation_label.modulate = Color(1, 1, 1)

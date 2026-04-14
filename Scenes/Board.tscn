@@ -70,7 +70,15 @@ text = "Settings"
 
 [node name="Settings Window" parent="." instance=ExtResource("3_37q8m")]
 
+[node name="Replay" type="Button" parent="."]
+offset_left = 870.0
+offset_top = 3.0
+offset_right = 930.0
+offset_bottom = 34.0
+text = "Replay"
+
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]
 [connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="Setting" to="." method="_on_setting_pressed"]
+[connection signal="pressed" from="Replay" to="." method="_on_replay_pressed"]

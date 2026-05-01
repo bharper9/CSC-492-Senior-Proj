@@ -3,6 +3,8 @@ extends Window
 
 func _ready():
 	$".".visible = !true
+	var test = AdaptiveSessionState.new()
+	print("Adaptive system loaded: ", test)
 
 func _on_close_requested():
 	$".".visible = !true

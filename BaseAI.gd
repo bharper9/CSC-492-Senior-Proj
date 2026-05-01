@@ -7,3 +7,9 @@ func choose_move(board: Array) -> Dictionary:
 		"nodes": 0,
 		"prunes": 0
 	}
+
+func evaluate_board_state(board: Array, player: int = ConnectFourRules.AI) -> int:
+	if player == ConnectFourRules.AI:
+		return ConnectFourRules.evaluate_position(board, ConnectFourRules.AI)
+
+	return -ConnectFourRules.evaluate_position(board, ConnectFourRules.AI)

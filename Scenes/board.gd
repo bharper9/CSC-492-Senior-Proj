@@ -9,7 +9,7 @@ const AI := 2
 @onready var board_view: Node2D = $BoardView
 @onready var status_label: Label = $StatusLabel
 @onready var reset_button: Button = $ResetButton
-
+@onready var record_label: Label = $RecordLabel
 @onready var timer_label: Label = $TimerLabel
 @onready var game_timer: Timer = $GameTimer
 
@@ -42,10 +42,21 @@ var winner_label: String = ""
 var adaptive_state: AdaptiveSessionState
 var adaptive_controller: AdaptiveDifficultyController
 
+var total_wins: int = 0
+var total_losses: int = 0
+var total_draws: int = 0
+
 # --- AI Helper Functions ---
+var adaptive_difficulty: int = 3
+const MIN_DIFFICULTY := 1
+const MAX_DIFFICULTY := 5
 const AI_DEPTH := 1 # Diffuclty spike 1 = easy 4+ AI is smart
 const NEG_INF := -99999999
 const POS_INF :=  99999999
+var recent_results: Array[String] = []
+const WIN_RATE_WINDOW := 5
+const HIGH_WIN_RATE := 0.70
+const LOW_WIN_RATE := 0.30
 
 func setup_ai() -> void:
 	match ai_type:
@@ -61,6 +72,18 @@ func setup_ai() -> void:
 			var minimax_ai := MinimaxAI.new()
 			minimax_ai.depth = 5
 			ai_player = minimax_ai
+	apply_ai_difficulty()
+
+
+	adaptive_difficulty = clamp(
+		adaptive_difficulty,
+		MIN_DIFFICULTY,
+		MAX_DIFFICULTY
+	)
+
+	apply_ai_difficulty()
+
+	print("New AI difficulty: ", adaptive_difficulty)
 # --- AI Helper ends --- 
 func _ready() -> void:
 	randomize()
@@ -107,6 +130,7 @@ func reset_game() -> void:
 	board_view.call("set_last_move", last_move_row, last_move_col)
 	board_view.queue_redraw()
 	update_stats_panel()
+	update_record_label()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over:
@@ -247,11 +271,15 @@ func end_game(result_text: String) -> void:
 
 	if result_text == "You win!":
 		game_result = "win"
+		total_wins += 1
 	elif result_text == "AI wins.":
 		game_result = "loss"
+		total_losses += 1
 	else:
 		game_result = "draw"
-
+		total_draws += 1
+	update_ai_difficulty_by_win_rate()
+	update_record_label()
 	# Save detailed game log first
 	save_game_log()
 
@@ -816,3 +844,62 @@ func build_game_summary() -> Dictionary:
 		"ai_mistakes": count_ai_mistakes(),
 		"avg_confidence_gap": average_confidence_gap()
 	}
+
+func apply_ai_difficulty() -> void:
+	if ai_player == null:
+		return
+
+	if ai_player is MinimaxAI:
+		ai_player.depth = adaptive_difficulty
+
+	if ai_player is AdaptiveAI:
+		ai_player.depth = adaptive_difficulty
+
+func record_game_result_for_difficulty() -> void:
+	recent_results.append(game_result)
+
+	if recent_results.size() > WIN_RATE_WINDOW:
+		recent_results.pop_front()
+
+func get_player_win_rate() -> float:
+	if recent_results.is_empty():
+		return 0.5
+
+	var wins := 0.0
+
+	for result in recent_results:
+		if result == "win":
+			wins += 1.0
+		elif result == "draw":
+			wins += 0.5
+
+	return wins / recent_results.size()
+
+func update_ai_difficulty_by_win_rate() -> void:
+	record_game_result_for_difficulty()
+
+	if recent_results.size() < WIN_RATE_WINDOW:
+		print("Adaptive AI: collecting more results...")
+		return
+
+	var win_rate := get_player_win_rate()
+
+	if win_rate >= HIGH_WIN_RATE:
+		adaptive_difficulty += 1
+	elif win_rate <= LOW_WIN_RATE:
+		adaptive_difficulty -= 1
+	else:
+		print("Adaptive AI: difficulty unchanged.")
+
+	adaptive_difficulty = clamp(adaptive_difficulty, MIN_DIFFICULTY, MAX_DIFFICULTY)
+	apply_ai_difficulty()
+
+	print("Player win rate: ", win_rate)
+	print("Adaptive difficulty: ", adaptive_difficulty)
+
+func update_record_label() -> void:
+	record_label.text = "Record: %dW - %dL - %dD" % [
+		total_wins,
+		total_losses,
+		total_draws
+	]

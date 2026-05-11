@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://bdjo65rlvivej"]
+[gd_scene load_steps=6 format=3 uid="uid://bdjo65rlvivej"]
 
 [ext_resource type="Script" uid="uid://dwhp7ptv0ecic" path="res://Scenes/board.gd" id="1_igt3p"]
 [ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_37q8m"]
+[ext_resource type="Theme" uid="uid://b3klx57slj0l3" path="res://Art/soft_retro/soft_retro.tres" id="2_ekcd8"]
 [ext_resource type="PackedScene" uid="uid://doc2suvkx7vq8" path="res://Scenes/settings_window.tscn" id="3_37q8m"]
+[ext_resource type="AudioStream" uid="uid://b6rja2ob4cqe3" path="res://Art/u_5bg9va03od-atmospheric-background-indie-rock-448990.mp3" id="4_pc0oo"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_igt3p")
@@ -12,6 +14,7 @@ offset_left = 877.0
 offset_top = 43.0
 offset_right = 917.0
 offset_bottom = 66.0
+theme = ExtResource("2_ekcd8")
 
 [node name="BoardView" type="Node2D" parent="."]
 script = ExtResource("2_37q8m")
@@ -21,6 +24,7 @@ offset_left = 632.0
 offset_top = 35.0
 offset_right = 672.0
 offset_bottom = 58.0
+theme = ExtResource("2_ekcd8")
 text = "Current Turn"
 
 [node name="ResetButton" type="Button" parent="."]
@@ -28,6 +32,7 @@ offset_left = 624.0
 offset_top = 2.0
 offset_right = 675.0
 offset_bottom = 33.0
+theme = ExtResource("2_ekcd8")
 text = "Reset"
 
 [node name="TimerLabel" type="Label" parent="."]
@@ -35,6 +40,7 @@ offset_left = 632.0
 offset_top = 79.0
 offset_right = 672.0
 offset_bottom = 102.0
+theme = ExtResource("2_ekcd8")
 text = "Time: 00:00"
 
 [node name="GameTimer" type="Timer" parent="."]
@@ -44,6 +50,7 @@ offset_left = 688.0
 offset_top = 3.0
 offset_right = 779.0
 offset_bottom = 34.0
+theme = ExtResource("2_ekcd8")
 text = "MainMenu"
 
 [node name="Label" type="Label" parent="."]
@@ -51,6 +58,7 @@ offset_left = 628.0
 offset_top = 108.0
 offset_right = 915.0
 offset_bottom = 369.0
+theme = ExtResource("2_ekcd8")
 
 [node name="SummaryPanel" type="Panel" parent="."]
 visible = false
@@ -58,6 +66,7 @@ offset_left = 664.0
 offset_top = 251.0
 offset_right = 760.0
 offset_bottom = 350.0
+theme = ExtResource("2_ekcd8")
 metadata/_edit_use_anchors_ = true
 
 [node name="SummaryLabel" type="Label" parent="SummaryPanel"]
@@ -73,6 +82,7 @@ offset_left = 791.0
 offset_top = 5.0
 offset_right = 861.0
 offset_bottom = 36.0
+theme = ExtResource("2_ekcd8")
 text = "Settings"
 
 [node name="Settings Window" parent="." instance=ExtResource("3_37q8m")]
@@ -82,7 +92,12 @@ offset_left = 870.0
 offset_top = 3.0
 offset_right = 930.0
 offset_bottom = 34.0
+theme = ExtResource("2_ekcd8")
 text = "Replay"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_pc0oo")
+autoplay = true
 
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]

@@ -1,6 +1,7 @@
 extends Window
 
-
+@export var bus_music: String = "Music"
+@export var bus_sfx: String = "Sfx"
 func _ready():
 	$".".visible = !true
 	var test = AdaptiveSessionState.new()

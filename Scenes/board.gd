@@ -6,6 +6,7 @@ const EMPTY := 0
 const HUMAN := 1
 const AI := 2
 
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var board_view: Node2D = $BoardView
 @onready var status_label: Label = $StatusLabel
 @onready var reset_button: Button = $ResetButton
@@ -94,6 +95,11 @@ func _ready() -> void:
 	adaptive_controller = AdaptiveDifficultyController.new(adaptive_state)
 
 	reset_game()
+	if is_instance_valid(music_player):
+		if not music_player.playing:
+			music_player.play()
+	else:
+		push_error("MusicPlayer node not found. Check the node path.")
 
 func reset_game() -> void:
 	# Initialize board
@@ -272,9 +278,11 @@ func end_game(result_text: String) -> void:
 	if result_text == "You win!":
 		game_result = "win"
 		total_wins += 1
+		SoundManager.play_partial_sound("win", 2)
 	elif result_text == "AI wins.":
 		game_result = "loss"
 		total_losses += 1
+		SoundManager.play_partial_sound("lose", 2)
 	else:
 		game_result = "draw"
 		total_draws += 1
@@ -438,6 +446,7 @@ func update_timer_label() -> void:
 
 func _on_reset_button_pressed() -> void:
 	reset_game()
+	SoundManager.play_partial_sound("click", 1)
 
 func save_game_log() -> void:
 	var timestamp := Time.get_datetime_string_from_system()
@@ -498,6 +507,7 @@ func save_game_log() -> void:
 
 func _on_main_menu_pressed():
 	get_tree().change_scene_to_file("res://Scenes/GameStart.tscn")
+	SoundManager.play_partial_sound("click", 1)
 
 func csv_escape(value) -> String:
 	var s := str(value)

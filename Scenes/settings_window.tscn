@@ -1,12 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://doc2suvkx7vq8"]
+[gd_scene load_steps=5 format=3 uid="uid://doc2suvkx7vq8"]
 
+[ext_resource type="Theme" uid="uid://b3klx57slj0l3" path="res://Art/soft_retro/soft_retro.tres" id="1_3rc5u"]
 [ext_resource type="Script" uid="uid://x3yp4u4iikaq" path="res://Scenes/settings_window.gd" id="1_ben5s"]
+[ext_resource type="Script" uid="uid://by84lbnku1wge" path="res://Scenes/music.gd" id="2_btldx"]
+[ext_resource type="Script" uid="uid://hvewkusom43b" path="res://Scenes/sfx.gd" id="3_3rc5u"]
 
 [node name="Settings Window" type="Window"]
 oversampling_override = 1.0
 title = "Settings"
 initial_position = 1
 size = Vector2i(450, 450)
+theme = ExtResource("1_3rc5u")
 script = ExtResource("1_ben5s")
 
 [node name="MainMenu" type="Button" parent="."]
@@ -22,12 +26,14 @@ offset_left = 9.0
 offset_top = 83.0
 offset_right = 400.0
 offset_bottom = 135.0
+script = ExtResource("2_btldx")
 
 [node name="SFX" type="HSlider" parent="."]
 offset_left = 13.0
 offset_top = 139.0
 offset_right = 404.0
 offset_bottom = 191.0
+script = ExtResource("3_3rc5u")
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="pressed" from="MainMenu" to="." method="_on_main_menu_pressed"]

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://4hsspw4j8kks"]
+[gd_scene load_steps=4 format=3 uid="uid://4hsspw4j8kks"]
 
 [ext_resource type="Script" uid="uid://cbowtml4x2rx" path="res://node_2d.gd" id="1_v1qfn"]
 [ext_resource type="Script" uid="uid://dfsbmx80tk26h" path="res://Scenes/board_view.gd" id="2_hh5uf"]
+[ext_resource type="Theme" uid="uid://b3klx57slj0l3" path="res://Art/soft_retro/soft_retro.tres" id="3_hh5uf"]
 
 [node name="Replayscene" type="Node2D"]
 script = ExtResource("1_v1qfn")
@@ -14,6 +15,7 @@ offset_left = 604.0
 offset_top = 219.0
 offset_right = 917.0
 offset_bottom = 645.0
+theme = ExtResource("3_hh5uf")
 
 [node name="MarginContainer" type="MarginContainer" parent="ReplayInfoPanel"]
 layout_mode = 0
@@ -69,6 +71,7 @@ offset_left = 604.0
 offset_top = 23.0
 offset_right = 759.0
 offset_bottom = 211.0
+theme = ExtResource("3_hh5uf")
 
 [node name="MarginContainer" type="MarginContainer" parent="ControlsPanel"]
 layout_mode = 0
@@ -106,6 +109,14 @@ layout_mode = 2
 
 [node name="ReplayTimer" type="Timer" parent="."]
 
+[node name="Button" type="Button" parent="."]
+offset_left = 770.0
+offset_top = 185.0
+offset_right = 849.0
+offset_bottom = 210.0
+theme = ExtResource("3_hh5uf")
+text = "MainMenu"
+
 [connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/PrevButton" to="." method="_on_prev_button_pressed"]
 [connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/NextButton" to="." method="_on_next_button_pressed"]
 [connection signal="pressed" from="ControlsPanel/MarginContainer/VBoxContainer/PlayPauseButton" to="." method="_on_play_pause_button_pressed"]
@@ -113,3 +124,4 @@ layout_mode = 2
 [connection signal="value_changed" from="ControlsPanel/MarginContainer/VBoxContainer/SpeedSlider" to="." method="_on_speed_slider_value_changed"]
 [connection signal="value_changed" from="ControlsPanel/MarginContainer/VBoxContainer/MoveSpinBox" to="." method="_on_move_spin_box_value_changed"]
 [connection signal="timeout" from="ReplayTimer" to="." method="_on_replay_timer_timeout"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

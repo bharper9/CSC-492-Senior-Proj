@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://u5fbwqc25vnr"]
+[gd_scene load_steps=4 format=3 uid="uid://u5fbwqc25vnr"]
 
+[ext_resource type="Theme" uid="uid://b3klx57slj0l3" path="res://Art/soft_retro/soft_retro.tres" id="1_0vix4"]
 [ext_resource type="Script" uid="uid://dpjt32mnd3n51" path="res://Scenes/game_start.gd" id="1_tdh8d"]
 [ext_resource type="PackedScene" uid="uid://doc2suvkx7vq8" path="res://Scenes/settings_window.tscn" id="2_8g2f7"]
 
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_0vix4")
 script = ExtResource("1_tdh8d")
 
 [node name="Play buttons" type="HBoxContainer" parent="."]

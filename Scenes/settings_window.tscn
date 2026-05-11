@@ -13,6 +13,13 @@ size = Vector2i(450, 450)
 theme = ExtResource("1_3rc5u")
 script = ExtResource("1_ben5s")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -79.0
+offset_top = -77.0
+offset_right = 539.0
+offset_bottom = 509.0
+color = Color(0.9871283, 0.87504095, 0.59778464, 1)
+
 [node name="MainMenu" type="Button" parent="."]
 offset_left = 150.0
 offset_top = 23.0

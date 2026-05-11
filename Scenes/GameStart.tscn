@@ -14,6 +14,16 @@ grow_vertical = 2
 theme = ExtResource("1_0vix4")
 script = ExtResource("1_tdh8d")
 
+[node name="background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_0vix4")
+color = Color(0.7875218, 0.9165074, 0.9223785, 1)
+
 [node name="Play buttons" type="HBoxContainer" parent="."]
 layout_mode = 1
 offset_left = 202.0

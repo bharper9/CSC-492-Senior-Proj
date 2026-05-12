@@ -509,3 +509,4 @@ func reset_analysis_colors() -> void:
 
 func _on_button_pressed():
 	get_tree().change_scene_to_file("res://Scenes/GameStart.tscn")
+	SoundManager.play_partial_sound("click", 1)

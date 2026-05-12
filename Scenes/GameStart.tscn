@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://u5fbwqc25vnr"]
+[gd_scene load_steps=5 format=3 uid="uid://u5fbwqc25vnr"]
 
 [ext_resource type="Theme" uid="uid://b3klx57slj0l3" path="res://Art/soft_retro/soft_retro.tres" id="1_0vix4"]
 [ext_resource type="Script" uid="uid://dpjt32mnd3n51" path="res://Scenes/game_start.gd" id="1_tdh8d"]
 [ext_resource type="PackedScene" uid="uid://doc2suvkx7vq8" path="res://Scenes/settings_window.tscn" id="2_8g2f7"]
+[ext_resource type="Script" uid="uid://ryg48updhwlc" path="res://Scenes/rich_text_label.gd" id="4_dxm5d"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -60,6 +61,18 @@ layout_mode = 2
 text = "Settings"
 
 [node name="Settings Window" parent="." instance=ExtResource("2_8g2f7")]
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 266.0
+offset_top = 140.0
+offset_right = 528.0
+offset_bottom = 260.0
+theme = ExtResource("1_0vix4")
+theme_override_font_sizes/normal_font_size = 35
+bbcode_enabled = true
+text = "Connect.VS.Ai"
+script = ExtResource("4_dxm5d")
 
 [connection signal="pressed" from="Play buttons/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="Play buttons/MinMax" to="." method="_on_min_max_pressed"]

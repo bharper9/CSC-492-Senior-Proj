@@ -140,11 +140,19 @@ func reset_game() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over:
+		print("Input ignored: game over")
 		return
+
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		print("Mouse click detected at: ", event.position)
+
 		var col: int = board_view.call("mouse_to_column", event.position)
+		print("Column detected: ", col)
+
 		if col == -1:
+			print("Click was outside board")
 			return
+
 		try_move(col)
 
 func clone_board(src_board: Array) -> Array:
@@ -290,6 +298,7 @@ func end_game(result_text: String) -> void:
 	update_record_label()
 	# Save detailed game log first
 	save_game_log()
+	save_latest_replay()
 
 	# Build summary for adaptive difficulty
 	var summary := build_game_summary()
@@ -636,10 +645,12 @@ func save_latest_replay() -> void:
 
 func _on_setting_pressed():
 	$"Settings Window".visible = true
+	SoundManager.play_partial_sound("click", 1)
 
 
 func _on_replay_pressed():
-	get_tree().change_scene_to_file("res://node_2d.tscn")
+	get_tree().change_scene_to_file("res://Scenes/node_2d.tscn")
+	SoundManager.play_partial_sound("click", 1)
 
 func analyze_position_move(board_before: Array, chosen_col: int, player: int) -> Dictionary:
 	var valid_cols := ConnectFourRules.get_valid_columns(board_before)

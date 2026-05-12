@@ -12,7 +12,11 @@ script = ExtResource("1_igt3p")
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1273.0
 offset_bottom = 804.0
+mouse_filter = 2
 color = Color(0.77508694, 0.6241734, 0.5670284, 1)
+
+[node name="BoardView" type="Node2D" parent="."]
+script = ExtResource("2_37q8m")
 
 [node name="RecordLabel" type="Label" parent="."]
 offset_left = 877.0
@@ -20,9 +24,6 @@ offset_top = 43.0
 offset_right = 917.0
 offset_bottom = 66.0
 theme = ExtResource("2_ekcd8")
-
-[node name="BoardView" type="Node2D" parent="."]
-script = ExtResource("2_37q8m")
 
 [node name="StatusLabel" type="Label" parent="."]
 offset_left = 632.0
